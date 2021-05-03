@@ -1,2 +1,5 @@
+import numpy as np
+
+
 def is_regular(M):
-    return len(M) == len(M[0])
+    return M.shape[0] == M.shape[1]
