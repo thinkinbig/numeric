@@ -6,9 +6,13 @@ from linear import linear_algo as lr
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    A = np.array([[1, 4, -1], [3, 0, 5], [2, 2, 1]])
-    L, R = lr.lr_decom(A)
-    print(L)
+    v = np.array([1, 2, 3])
+    w = lr.householder(v)
+    A = np.array([[1, 2, 3],
+                  [2, 5, 0],
+                  [3, 0, 4]])
+    Q, R = lr.qr_decom(A)
+    print(Q)
     print(R)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

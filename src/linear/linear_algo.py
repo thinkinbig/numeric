@@ -1,9 +1,11 @@
 import numpy as np
-from util import is_regular
+
+import util
+from numpy import linalg as la
 
 
 def backward_sub(R, y):
-    assert is_regular(R)
+    assert util.is_regular(R)
     N = len(y)
     x = np.zeros(N)
     for n in range(N - 1, -1, -1):
@@ -12,7 +14,7 @@ def backward_sub(R, y):
 
 
 def forward_sub(L, b):
-    assert is_regular(L)
+    assert util.is_regular(L)
     N = len(b)
     y = np.zeros(N)
     for n in range(0, N):
@@ -21,7 +23,7 @@ def forward_sub(L, b):
 
 
 def lr_decom(A):
-    assert is_regular(A)
+    assert util.is_regular(A)
     N = A.shape[0]
     L = np.eye(N)
     R = np.zeros(A.shape)
@@ -39,6 +41,8 @@ def lr_decom(A):
 
 
 def cholesky(A):
+    assert util.is_positive_definite(A)
+    assert util.is_symmetric(A)
     N = A.shape[0]
     L = np.zeros(A.shape)
     L[0, 0] = np.sqrt(A[0, 0])
@@ -49,3 +53,25 @@ def cholesky(A):
         L[n, n] = np.sqrt(A[n, n] - np.dot(y, y))
     return L
 
+
+def householder(v):
+    N = v.shape[0]
+    delta = -la.norm(v, 2) if v[0] > 0 else la.norm(v, 2)
+    e1 = np.zeros(N)
+    e1[0] = 1
+    # normalize the w
+    w = util.normalize(v - delta * e1)
+    # np.identity(N) - 2 * np.multiply(w, w.reshape(-1, 1)) Matrix from Householder Transformation
+    return w
+
+
+def qr_decom(A):
+    N = A.shape[0]
+    Q = np.identity(N)
+    for i in range(0, N):
+        a1 = A[i:N, i]
+        w1 = np.pad(householder(a1), (i, 0), 'constant', constant_values=0)
+        Q1 = np.identity(N) - 2 * np.multiply(w1, w1.reshape(-1, 1))
+        A = Q1.dot(A)
+        Q = Q.dot(Q1)
+    return Q, np.multiply(Q, A)
